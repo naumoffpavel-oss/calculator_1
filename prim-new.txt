@@ -1,0 +1,97 @@
+<div class="sn-samples" id="snSamples">
+  <div class="sn-head">
+    <div class="sn-titleRow">
+      <h1 class="sn-title">Примеры материала и комплектующих</h1>
+      <div class="sn-actions">
+        <button class="sn-btn" type="button" data-demo-toggle title="Увеличить карточки и упростить интерфейс">
+          Режим показа
+        </button>
+        <button class="sn-btn sn-btn--brand" type="button" data-compare-open hidden>
+          Сравнение (0)
+        </button>
+      </div>
+    </div>
+
+    <div class="sn-toolbar">
+      <div class="sn-search">
+        <input type="search" data-search placeholder="Поиск по названию" aria-label="Поиск по материалам и комплектующим">
+      </div>
+      <div class="sn-tabs" role="tablist" aria-label="Разделы каталога" data-tabs></div>
+    </div>
+
+    <div class="sn-subbar">
+      <div class="sn-subbarLeft" data-groups></div>
+      <div class="sn-metaLine" data-meta>Готово</div>
+    </div>
+  </div>
+
+  <div class="sn-content" data-content aria-live="polite"></div>
+</div>
+
+<!-- MODAL -->
+<div class="sn-modal" data-modal hidden role="dialog" aria-modal="true" aria-label="Карточка товара">
+  <div class="sn-modalPanel" role="document">
+    <div class="sn-modalTop">
+      <div class="sn-modalTopLeft">
+        <button class="sn-btn" type="button" data-modal-close>Закрыть</button>
+        <h2 class="sn-modalTitle" data-modal-title></h2>
+      </div>
+      <div class="sn-modalTopRight">
+        <button class="sn-btn sn-btn--brand" type="button" data-modal-compare-toggle hidden>В сравнение</button>
+        <button class="sn-btn sn-btn--cta" type="button" data-modal-copy hidden>Скопировать</button>
+      </div>
+    </div>
+
+    <div class="sn-modalBody">
+      <div class="sn-media">
+        <div class="sn-slider" data-slider>
+          <button class="sn-sNav sn-sNav--prev" type="button" data-slide-prev aria-label="Предыдущее фото">‹</button>
+          <img data-slide-img alt="" draggable="false">
+          <button class="sn-sNav sn-sNav--next" type="button" data-slide-next aria-label="Следующее фото">›</button>
+        </div>
+        <div class="sn-dots" data-dots></div>
+      </div>
+
+      <div class="sn-info">
+        <p class="sn-price" data-modal-price hidden></p>
+        <dl class="sn-specs" data-modal-specs></dl>
+        <div class="sn-empty" data-modal-empty hidden>Характеристики не указаны</div>
+      </div>
+    </div>
+
+    <div class="sn-modalFooter">
+      <button class="sn-btn" type="button" data-item-prev>Предыдущий</button>
+      <button class="sn-btn" type="button" data-item-next>Следующий</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE -->
+<aside class="sn-compare" data-compare hidden aria-label="Сравнение производителей пленки">
+  <div class="sn-compareTop">
+    <h3 class="sn-compareTitle">Сравнение пленки</h3>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="sn-btn" type="button" data-compare-clear>Очистить</button>
+      <button class="sn-btn" type="button" data-compare-close>Закрыть</button>
+    </div>
+  </div>
+
+  <div class="sn-compareBody">
+    <div class="sn-picked" data-picked></div>
+
+    <div class="sn-compareControls">
+      <label class="sn-toggle" title="Скрыть строки, где значения одинаковые у всех выбранных">
+        <input type="checkbox" data-only-diff>
+        <span>Только отличия</span>
+      </label>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+        <div class="sn-metaLine">Совет: выберите 2-3 производителя</div>
+      </div>
+    </div>
+
+    <div class="sn-tableWrap">
+      <table class="sn-compareTable" data-compare-table></table>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,851 @@
+<h1 class="sn-calc-title">Расчет стоимости</h1>
+<div class="sn-calc__mini-totals" id="miniTotals" role="button" tabindex="0" aria-label="Перейти к итоговым ценам" hidden>
+    <div class="sn-calc__mini-chip" data-price="LongWai">LongWai: <span>0</span> ₽</div>
+    <div class="sn-calc__mini-chip" data-price="MSD Classic">MSD Classic: <span>0</span> ₽</div>
+    <div class="sn-calc__mini-chip" data-price="MSD Perfekt">MSD Perfekt: <span>0</span> ₽</div>
+    <div class="sn-calc__mini-chip" data-price="BAUF">BAUF: <span>0</span> ₽</div>
+    <div class="sn-calc__mini-chip" data-price="Teqtum KM2">Teqtum KM2: <span>0</span> ₽</div>
+</div>
+
+<div id="calcCell_Bablo" class="sn-calc">
+    <div class="sn-calc__layout">
+        <div class="sn-calc__main">
+    <div class="sn-calc__card">
+        <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="true">Объект:</div>
+        <table width="100%" class="sn-calc__section-content is-open">
+            <tr>
+                <td style="text-align: left;">Объект</td>
+                <td><input type="text" id="calc_object"/></td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Подъезд</td>
+                <td>
+                    <select id="calc_podezd">
+                        <option value="">Выберите</option>
+                        <script>
+                            for (let i = 1; i <= 20; i++) {
+                                    document.write(`<option value="${i}">${i}</option>`);
+                                }
+                        </script>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Этаж</td>
+                <td>
+                    <select id="calc_etazh">
+                        <option value="">Выберите</option>
+                        <script>
+                            for (let i = 1; i <= 20; i++) {
+                                    document.write(`<option value="${i}">${i}</option>`);
+                                }
+                        </script>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Лифт</td>
+                <td>
+                    <label class="sn-calc__switch">
+                        <input type="checkbox" id="calc_lift">
+                        <span class="sn-calc__slider"></span>
+                    </label>
+                </td>
+            </tr>
+        </table>
+        <div class="sn-calc__object-accordion">
+            <button type="button" class="sn-calc__accordion-toggle" aria-expanded="false">
+                Характеристики объекта
+            </button>
+            <div class="sn-calc__accordion-content" aria-hidden="true">
+                <div class="sn-calc__object-conditions">
+                    <label>
+                        Тип объекта
+                        <select id="calc_object_type">
+                            <option value="">Выберите</option>
+                            <option value="Квартира">Квартира</option>
+                            <option value="Дом">Дом</option>
+                            <option value="Офис">Офис</option>
+                            <option value="Коммерция">Коммерция</option>
+                        </select>
+                    </label>
+                    <label>
+                        Мебель
+                        <select id="calc_object_furniture">
+                            <option value="">Выберите</option>
+                            <option value="Пустая">Пустая</option>
+                            <option value="Частично">Частично</option>
+                            <option value="Заставлена">Заставлена</option>
+                        </select>
+                    </label>
+                    <label>
+                        Ремонт
+                        <select id="calc_object_repair">
+                            <option value="">Выберите</option>
+                            <option value="Черновой">Черновой</option>
+                            <option value="Чистовой">Чистовой</option>
+                            <option value="Уже живут">Уже живут</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sn-calc__card">
+        <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="true">Параметры потолков:</div>
+        <table width="100%" class="sn-calc__section-content is-open">
+            <tr>
+                <td>Количество</td>
+                <td width="140px">
+                    <div class="number-input">
+                        <button class="decrement">-</button>
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_KOLICHESTVO" value="0"/>
+                            <span class="unit">шт</span>
+                        </div>
+                        <button class="increment">+</button>
+                    </div>
+                </td>
+            </tr>
+			<tr>
+                <td style="text-align: left;">Фактура</td>
+                <td>
+                    <select id="calc_faktura">
+                        <option value="">Выберите</option>
+                        <option value="Матовый">Матовый</option>
+                        <option value="Глянец">Глянец</option>
+                        <option value="Сатин">Сатин</option>
+                        <option value="Другое">Другое</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Площадь&nbsp;↔️ до 3.5м</td>
+                <td width="140px">
+                    <div class="input-with-unit">
+                        <input type="number" id="calc_KB_3" value="0"/>
+                        <span class="unit">м²</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Площадь&nbsp;↔️ 4-5м</td>
+                <td width="140px">
+                    <div class="input-with-unit">
+                        <input type="number" id="calc_KB_5" value="0"/>
+                        <span class="unit">м²</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Доп.углы&nbsp;(больше 4)</td>
+                <td width="140px">
+                    <div class="number-input">
+                        <button class="decrement">-</button>
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_UGL" value="0"/>
+                            <span class="unit">шт</span>
+                        </div>
+                        <button class="increment">+</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="sn-calc__card" id="activeExtrasCard">
+        <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="true">Что будет:</div>
+        <div class="sn-calc__section-content is-open">
+            <div class="sn-calc__extras-empty" id="activeExtrasEmpty">Нет добавленных допов</div>
+            <table width="100%" class="sn-calc__extras-table" id="activeExtrasTable"></table>
+        </div>
+    </div>
+    <div class="sn-calc__card" id="extrasPanelCard">
+        <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="false">Дополнительные позиции:</div>
+        <div class="sn-calc__section-content">
+            <div class="sn-calc__extras-panel">
+                <div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Популярные</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Установка"></div>
+                    </div>
+                </div>
+                <div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Дополнительные работы</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Дополнительные работы"></div>
+                    </div>
+                </div>
+				<div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Материал</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Материал"></div>
+                </div>
+                </div>
+                <div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Карнизы</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Карнизы"></div>
+                    </div>
+                </div>
+                <div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Линии</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Линии"></div>
+                    </div>
+                </div>
+                <div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Профиля</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Профиля"></div>
+                    </div>
+                </div>
+                <div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Лента</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Лента"></div>
+                    </div>
+                </div>
+                <div class="sn-calc__extras-group">
+                    <div class="sn-calc__section-title sn-calc__section-title--sub" role="button" tabindex="0" aria-expanded="false">Треки</div>
+                    <div class="sn-calc__section-content">
+                        <div class="sn-calc__extras-buttons" data-group="Треки"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="extrasWarehouse" class="sn-calc__extras-warehouse" aria-hidden="true">
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="true">Установка:</div>
+            <table width="100%" class="sn-calc__section-content is-open">
+                <tr>
+                    <td>Уст.Люстр</td>
+                    <td width="140px">
+                        <div class="number-input">
+                            <button class="decrement">-</button>
+                            <div class="input-with-unit">
+                                <input type="number" id="calc_LUSTR" value="0"/>
+                                <span class="unit">шт</span>
+                            </div>
+                            <button class="increment">+</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Уст.Светильников</td>
+                    <td width="140px">
+                        <div class="number-input">
+                            <button class="decrement">-</button>
+                            <div class="input-with-unit">
+                                <input type="number" id="calc_SVETILNIK" value="0"/>
+                                <span class="unit">шт</span>
+                            </div>
+                            <button class="increment">+</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Уст.Гардин</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_GARDIN" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="true">Материал:</div>
+            <table width="100%" class="sn-calc__section-content is-open">
+                <tr>
+                    <td>Светильники</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_SVETILNIK_cena" value="0"/>
+                            <span class="unit">руб</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Модель светильников</td>
+                    <td width="140px"><input type="text" id="calc_SVETILNIK_model"/></td>
+                </tr>
+                <tr>
+                    <td>Гардина 2х.ряд</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_GARDINA" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Бленда</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_BLENDA" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Модель бленды</td>
+                    <td width="140px"><input type="text" id="calc_BLENDA_model"/></td>
+                </tr>
+                <tr>
+                    <td>Пульт</td>
+                    <td width="120px">
+                        <div class="number-input">
+                            <button class="decrement">-</button>
+                            <div class="input-with-unit">
+                                <input type="number" id="calc_PULT" value="0"/>
+                                <span class="unit">шт</span>
+                            </div>
+                            <button class="increment">+</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="true">Дополнительные работы:</div>
+            <table width="100%" class="sn-calc__section-content is-open">
+                <tr>
+                    <td>Обвод труб</td>
+                    <td width="140px">
+                        <div class="number-input">
+                            <button class="decrement">-</button>
+                            <div class="input-with-unit">
+                                <input type="number" id="calc_TRUB" value="0"/>
+                                <span class="unit">шт</span>
+                            </div>
+                            <button class="increment">+</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Вставка белая</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_BSTAVKA" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Вставка черная</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_BSTAVKAb" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Керамогранит</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_KERAM" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Гофра</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_GOFRA" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Брус 50*50</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_BRUS_50_50" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Брус 100*50</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_BRUS_100_50" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="false">Карнизы:</div>
+            <table width="100%" class="sn-calc__section-content">
+                <tr>
+                    <td>Ниша из БП-40</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="GARDIN_BP40" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ниша из Sigma</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="GARDIN_Sigma" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ПК-15&nbsp;(2 02)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="GARDIN_PK15" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ПК-14&nbsp;(2 05)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="GARDIN_PK14" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>AM-1</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="GARDIN_AM" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Подсветка</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="GARDIN_PODsvetka" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="false">Линии:</div>
+            <table width="100%" class="sn-calc__section-content">
+                <tr>
+                    <td>LINE 15</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LINIEA1" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>LINE 30</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LINIEA3" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>LINE 50</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LINIEA5" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="false">Профиля:</div>
+            <table width="100%" class="sn-calc__section-content">
+                <tr>
+                    <td>Flexy Fly 02 парящий</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="Paryashchiy" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>KONTUR 01 контурный</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="Konturnyy" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Double LumFer засвет</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_ZASVET" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Разделитель AL</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_RAZDELITEL" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Багет AL</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_ALUMIN_PROF" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Бизон ПВХ&nbsp;(теневой)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_PVX_TEN" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>EURO 02 AL&nbsp;(теневой)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_ALUMIN_TEN" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Доп.углы&nbsp;(теневой)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="calc_ALUMIN_TEN_UGL" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="false">Лента:</div>
+            <table width="100%" class="sn-calc__section-content">
+                <tr>
+                    <td>Белая (2700K)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LENTA_WHITE_2700" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Белая (4000K)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LENTA_WHITE_4000" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Белая (6500K)</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LENTA_WHITE_6500" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Цветная RGB</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LENTA_RGB" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Цветная RGB+W</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="LENTA_RGB_CCT" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Блок питания</td>
+                    <td width="140px">
+                        <div class="number-input">
+                            <button class="decrement">-</button>
+                            <div class="input-with-unit">
+                                <input type="number" id="LENTA_POWER" value="0"/>
+                                <span class="unit">шт</span>
+                            </div>
+                            <button class="increment">+</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Контроллер</td>
+                    <td width="140px">
+                        <div class="number-input">
+                            <button class="decrement">-</button>
+                            <div class="input-with-unit">
+                                <input type="number" id="LENTA_CONTROLLER" value="0"/>
+                                <span class="unit">шт</span>
+                            </div>
+                            <button class="increment">+</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sn-calc__card">
+            <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="false">Треки:</div>
+            <table width="100%" class="sn-calc__section-content">
+                <tr>
+                    <td>Накладной</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="nakladnoy_t" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Встраиваемый</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="vstraivayemyy_t" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Магнитный</td>
+                    <td width="140px">
+                        <div class="input-with-unit">
+                            <input type="number" id="magnitnyy_t" value="0"/>
+                            <span class="unit">м</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="sn-calc__card" id="calcTotals">
+        <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="true">Итоговые цены</div>
+        <div class="sn-calc__section-content is-open">
+            <div class="sn-calc__totals">
+                <div class="sn-calc__total-card calcPrice_Long">
+                    <div class="sn-calc__total-label">
+                        <img class="sn-calc__brand-logo" src="/images/Proizvoditeli/Longwai.svg" alt="LongWai">
+                    </div>
+                    <div class="sn-calc__total-value"><span style="font-size:30px;">0</span> ₽</div>
+                </div>
+                <div class="sn-calc__total-card calcPrice_Cassic">
+                    <div class="sn-calc__total-label">
+                        <img class="sn-calc__brand-logo" src="/images/Proizvoditeli/Classic.svg" alt="MSD Classic">
+                    </div>
+                    <div class="sn-calc__total-value"><span style="font-size:27px;">0</span> ₽</div>
+                </div>
+                <div class="sn-calc__total-card calcPrice_Evo">
+                    <div class="sn-calc__total-label">
+                        <img class="sn-calc__brand-logo" src="/images/Proizvoditeli/Perfekt.svg" alt="MSD Perfekt">
+                    </div>
+                    <div class="sn-calc__total-value"><span style="font-size:24px;">0</span> ₽</div>
+                </div>
+                <div class="sn-calc__total-card calcPrice_BAUF">
+                    <div class="sn-calc__total-label">
+                        <img class="sn-calc__brand-logo" src="/images/Proizvoditeli/Bauf.svg" alt="BAUF">
+                    </div>
+                    <div class="sn-calc__total-value"><span style="font-size:24px;">0</span> ₽</div>
+                </div>
+                <div class="sn-calc__total-card calcPrice_Teqtum">
+                    <div class="sn-calc__total-label">
+                        <img class="sn-calc__brand-logo" src="/images/Proizvoditeli/Teqtum.svg" alt="Teqtum KM2">
+                    </div>
+                    <div class="sn-calc__total-value"><span style="font-size:27px;">0</span> ₽</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+
+<div class="sn-calc__card">
+    <div class="sn-calc__section-title" role="button" tabindex="0" aria-expanded="false">Корректировка</div>
+    <div class="sn-calc__section-content">
+        <div class="sn-calc__discount-note" id="discountStatus">Корректировка применена.</div>
+        <div class="sn-calc__discount-options">
+            <div class="sn-calc__discount-option" data-discount="0">0</div>
+            <div class="sn-calc__discount-option" data-discount="-5">-5%</div>
+            <div class="sn-calc__discount-option" data-discount="-7">-7%</div>
+            <div class="sn-calc__discount-option" data-discount="-10">-10%</div>
+            <div class="sn-calc__discount-option" data-discount="6">+6%</div>
+            <div class="sn-calc__discount-option" data-discount="10">+10%</div>
+        </div>
+    </div>
+</div>
+<!-- Дополнительные характеристики объекта -->
+<div class="sn-calc__card sn-calc__extras" style="margin-top: 20px;">
+    <div>
+        <div>
+        <label>Производитель:</label>
+        <div class="sn-calc__checkbox-group">
+            <label><input type="checkbox" name="proizvoditel" value="LongWai"> LongWai</label>
+            <label><input type="checkbox" name="proizvoditel" value="MSD Classic"> MSD Classic</label>
+            <label><input type="checkbox" name="proizvoditel" value="MSD Perfekt"> MSD Perfekt</label>
+            <label><input type="checkbox" name="proizvoditel" value="BAUF"> BAUF</label>
+            <label><input type="checkbox" name="proizvoditel" value="Teqtum KM2"> Teqtum KM2</label>
+        </div>
+    </div>
+        <label>Материал стен:</label>
+        <div class="sn-calc__checkbox-group">
+            <label><input type="checkbox" name="material" value="Кирпич"> Кирпич</label>
+            <label><input type="checkbox" name="material" value="Гипсолит"> Гипсолит</label>
+            <label><input type="checkbox" name="material" value="Монолит"> Монолит</label>
+            <label><input type="checkbox" name="material" value="Гипсокартон"> Гипсокартон</label>
+            <label><input type="checkbox" name="material" value="Дерево"> Дерево</label>
+            <label><input type="checkbox" name="material" value="Дранка"> Дранка</label>
+            <label><input type="checkbox" name="material" value="Пенобетон"> Пенобетон</label>
+            <label><input type="checkbox" name="material" value="Арболит"> Арболит</label>
+            <label><input type="checkbox" name="material" value="Керамзитобетон"> Керамзитобетон</label>
+            <label><input type="checkbox" name="material" value="Поротерм"> Поротерм</label>
+        </div>
+    </div>
+    <div>
+        <label>Отделка стен:</label>
+        <div class="sn-calc__checkbox-group">
+            <label><input type="checkbox" name="otdelka" value="Нет"> Нет</label>
+            <label><input type="checkbox" name="otdelka" value="Обои"> Обои</label>
+            <label><input type="checkbox" name="otdelka" value="Краска"> Краска</label>
+            <label><input type="checkbox" name="otdelka" value="Кафель"> Кафель</label>
+            <label><input type="checkbox" name="otdelka" value="Керамогранит"> Керамогранит</label>
+            <label><input type="checkbox" name="otdelka" value="❗️ Перетяжка"> Перетяжка</label>
+        </div>
+    </div>
+    <div>
+        <label>Высота потолка:</label>
+        <select id="calc_height">
+            <script>
+                for (let i = 2.0; i <= 4.0; i += 0.1) {
+                    const value = i.toFixed(1);
+                    const isSelected = Math.abs(i - 2.5) < 0.01;
+                    document.write(`<option value="${value}" ${isSelected ? 'selected' : ''}>${value} м</option>`);
+                }
+            </script>
+        </select>
+    </div>
+    <div>
+        <label>Подскажете, откуда вы о нас узнали?</label>
+        <select id="calc_source">
+            <option value="Повторный заказ">Повторный заказ</option>   
+            <option value="Сайт ">Сайт </option>
+            <option value="Интернет">Интернет</option>
+            <option value="Реклама">Реклама</option>
+            <option value="Авито">Авито</option>
+            <option value="ВК">ВК</option>
+            <option value="Отзывы">Отзывы</option>
+            <option value="От строителей">От строителей</option>
+            <option value="От знакомых"> От знакомых</option>
+            <option value="Печатная реклама">Печатная реклама</option>            
+        </select>
+    </div>
+    <div>
+        <label>Заметка:</label>
+        <textarea id="calc_note" rows="6" placeholder="Введите заметку..."></textarea>
+    </div>
+        </div>
+        <aside class="sn-calc__side">
+            <div class="sn-calc__card">
+                <div class="sn-calc__section-title" role="heading" aria-level="2" aria-expanded="true">Действия</div>
+                <div class="sn-calc__section-content is-open">
+                    <div class="sn-calc__actions">
+                        <button id="sendToTelegram" class="sn-calc__button sn-calc__button--primary">Отправить в Telegram</button>
+                        <button id="saveCalculation" class="sn-calc__button sn-calc__button--secondary">Сохранить расчет</button>
+                        <button id="showHistory" class="sn-calc__button sn-calc__button--secondary">История</button>
+                        <button id="clearBtn" class="sn-calc__button sn-calc__button--ghost">Очистить форму</button>
+                    </div>
+                    <div class="sn-calc__input-hint" id="objectError" aria-live="polite"></div>
+                </div>
+            </div>
+            <div class="sn-calc__card sn-calc__photo">
+                <div class="sn-calc__section-title" role="heading" aria-level="2" aria-expanded="true">Фото объекта</div>
+                <div class="sn-calc__section-content is-open">
+                    <div class="sn-calc__actions">
+                        <button class="sn-calc__button sn-calc__button--secondary" id="takePhotoBtn">Камера</button>
+                        <button class="sn-calc__button sn-calc__button--secondary" id="choosePhotoBtn">Галерея</button>
+                    </div>
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="sn-calc__photo-grid" id="photoPreviewContainer"></div>
+                    <div class="sn-calc__photo-status" id="photoStatus"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div class="sn-calc__modal" id="sendSummaryModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="sn-calc__modal-backdrop" data-modal-close></div>
+    <div class="sn-calc__modal-card sn-mod" role="document">
+        <div class="sn-calc__modal-header sn-modal__header">
+            <h3>Проверьте данные перед отправкой</h3>
+        </div>
+        <div class="sn-calc__modal-body sn-modal__body">
+            <div class="sn-calc__modal-summary" id="sendSummaryContent"></div>
+        </div>
+        <div class="sn-calc__modal-actions sn-modal__footer">
+            <button class="sn-calc__button sn-calc__button--primary" id="confirmSendBtn">Отправить</button>
+            <button class="sn-calc__button sn-calc__button--secondary" id="cancelSendBtn">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<div id="historyPanel" class="sn-calc__history-panel" aria-hidden="true">
+    <div class="sn-calc__history-header">
+        <h3>История расчетов</h3>
+        <button class="sn-calc__button sn-calc__button--ghost close-history" aria-label="Закрыть историю">&times;</button>
+    </div>
+    <div class="sn-calc__history-body">
+        <input type="text" id="historySearch" placeholder="Поиск по объекту">
+        <div class="sn-calc__history-actions">
+            <button id="clearAllHistory" class="sn-calc__button sn-calc__button--ghost">Очистить всю историю</button>
+        </div>
+    <div id="historyList"></div>
+    </div>
+</div>
+
+<div class="sn-calc__sticky-actions" aria-label="Быстрые действия">
+    <button class="sn-calc__sticky-action sn-calc__sticky-action--center" id="stickyClearBtn" type="button">Очистить</button>
+	<button class="sn-calc__sticky-action sn-calc__sticky-action--left" id="stickyPriceBtn" type="button">Стоимость</button>
+    <button class="sn-calc__sticky-action sn-calc__sticky-action--right" id="stickySendBtn" type="button">Отправить
+    </button>
+</div>
