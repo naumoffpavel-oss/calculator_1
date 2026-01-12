@@ -1,4 +1,7 @@
- // Global variables for photo management
+ (function(){
+ 'use strict';
+
+// Global variables for photo management
 let uploadedPhotos = [];
 const photoInput = document.createElement('input');
 const HISTORY_KEY = 'calculatorHistory';
@@ -11,10 +14,15 @@ photoInput.style.display = 'none';
 // Discount variable
 let currentDiscount = 0;
 const calcRoot = document.getElementById('calcCell_Bablo');
+if (!calcRoot) return;
+const $ = (selector, scope = calcRoot) => (scope || calcRoot).querySelector(selector);
+const $$ = (selector, scope = calcRoot) => Array.from((scope || calcRoot).querySelectorAll(selector));
+const addListener = (el, event, handler, options) => {
+    if (!el) return;
+    el.addEventListener(event, handler, options);
+};
 const miniTotals = document.getElementById('miniTotals');
 const totalsBlock = document.getElementById('calcTotals');
-let miniTotalsManual = false;
-let miniTotalsAutoEnabled = false;
 const galleryInput = document.createElement('input');
 galleryInput.type = 'file';
 galleryInput.accept = 'image/*';
@@ -401,7 +409,7 @@ function renderExtrasButtons() {
     extraConfigs.forEach((config) => {
         const extra = extrasRegistry.get(config.id);
         if (!extra) return;
-        const container = document.querySelector(`.sn-calc__extras-buttons[data-group="${config.group}"]`);
+        const container = $(`.sn-calc__extras-buttons[data-group="${config.group}"]`);
         if (!container) return;
         const button = document.createElement('button');
         button.type = 'button';
@@ -575,7 +583,47 @@ function setMiniTotalsVisibility(show) {
     miniTotals.classList.toggle('is-visible', show);
 }
 
+let historyLastFocus = null;
+
+function openHistoryPanel() {
+    const historyPanel = document.getElementById('historyPanel');
+    if (!historyPanel) return;
+    historyLastFocus = document.activeElement;
+    historyPanel.classList.add('show');
+    historyPanel.setAttribute('aria-hidden', 'false');
+    historyPanel.removeAttribute('inert');
+    if ('inert' in historyPanel) {
+        historyPanel.inert = false;
+    }
+    const focusTarget = document.getElementById('historySearch') || historyPanel.querySelector('.close-history') || historyPanel;
+    if (focusTarget && typeof focusTarget.focus === 'function') {
+        focusTarget.focus();
+    }
+}
+
+function closeHistoryPanel() {
+    const historyPanel = document.getElementById('historyPanel');
+    if (!historyPanel) return;
+    const showHistoryBtn = document.getElementById('showHistory');
+    let focusTarget = null;
+    if (historyLastFocus && historyLastFocus.isConnected && !historyPanel.contains(historyLastFocus)) {
+        focusTarget = historyLastFocus;
+    } else if (showHistoryBtn) {
+        focusTarget = showHistoryBtn;
+    }
+    if (focusTarget && typeof focusTarget.focus === 'function') {
+        focusTarget.focus();
+    }
+    historyPanel.classList.remove('show');
+    historyPanel.setAttribute('aria-hidden', 'true');
+    historyPanel.setAttribute('inert', '');
+    if ('inert' in historyPanel) {
+        historyPanel.inert = true;
+    }
+}
+
 function updateMiniTotals(values = []) {
+    if (!miniTotals) return;
     const chips = miniTotals.querySelectorAll('.sn-calc__mini-chip');
     values.forEach((value, index) => {
         if (chips[index]) {
@@ -611,14 +659,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    if (!document.getElementById('calc_height').value) {
-        document.getElementById('calc_height').value = '2.5';
+    const calcHeight = document.getElementById('calc_height');
+    if (calcHeight && !calcHeight.value) {
+        calcHeight.value = '2.5';
     }
 
     setDiscountVisibility(localStorage.getItem('snCalcShowDiscounts') === 'true');
 
     // Обработчики для полей ввода, чтобы правильно работать с числами < 1
-    document.querySelectorAll('input[type="number"]').forEach(input => {
+    $$('input[type="number"]').forEach(input => {
         input.addEventListener('focus', function() {
             if (this.value === '0') {
                 this.value = '';
@@ -675,26 +724,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     calcRoot.addEventListener('change', recalc);
 
-    document.getElementById('sendToTelegram').addEventListener('click', handleSendClick);
-    document.getElementById('saveCalculation').addEventListener('click', saveCurrentCalculation);
-    document.getElementById('showHistory').addEventListener('click', () => {
+    addListener(document.getElementById('sendToTelegram'), 'click', handleSendClick);
+    addListener(document.getElementById('saveCalculation'), 'click', saveCurrentCalculation);
+    addListener(document.getElementById('showHistory'), 'click', () => {
         renderHistory();
-        document.getElementById('historyPanel').classList.add('show');
-        document.getElementById('historyPanel').setAttribute('aria-hidden', 'false');
+        openHistoryPanel();
     });
-    document.querySelector('.close-history').addEventListener('click', () => {
-        document.getElementById('historyPanel').classList.remove('show');
-        document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
-    });
-    document.getElementById('historySearch').addEventListener('input', renderHistory);
+    addListener($('.close-history'), 'click', closeHistoryPanel);
+    addListener(document.getElementById('historySearch'), 'input', renderHistory);
 
     const stickyPriceBtn = document.getElementById('stickyPriceBtn');
     const stickyClearBtn = document.getElementById('stickyClearBtn');
     const stickySendBtn = document.getElementById('stickySendBtn');
 
-    if (stickyPriceBtn) {
+    if (stickyPriceBtn && miniTotals) {
         stickyPriceBtn.addEventListener('click', () => {
-            miniTotalsManual = true;
             const shouldShow = miniTotals.hidden || !miniTotals.classList.contains('is-visible');
             setMiniTotalsVisibility(shouldShow);
         });
@@ -795,7 +839,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setupNumberInputGroup(inputGroup, input);
     };
 
-    document.querySelectorAll('input[type="number"]').forEach((input) => {
+    $$('input[type="number"]').forEach((input) => {
         if (input.closest('.number-input')) {
             setupNumberInputGroup(input.closest('.number-input'), input);
         } else {
@@ -803,7 +847,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const objectAccordionToggle = document.querySelector('.sn-calc__accordion-toggle');
+    const objectAccordionToggle = $('.sn-calc__accordion-toggle');
     if (objectAccordionToggle) {
         const content = objectAccordionToggle.parentElement.querySelector('.sn-calc__accordion-content');
         objectAccordionToggle.addEventListener('click', () => {
@@ -814,7 +858,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize collapsible sections
-    document.querySelectorAll('.sn-calc__section-title[role="button"]').forEach(title => {
+    $$('.sn-calc__section-title[role="button"]').forEach(title => {
         const content = title.parentElement.querySelector('.sn-calc__section-content');
         if (!content) return;
         if (title.getAttribute('aria-expanded') === 'true') {
@@ -835,7 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
     // Initially hide sections that should be collapsed by default
     const sectionsToCollapse = ['Профиля:', 'Треки:', 'Лента:', 'Линии:', 'Карнизы:', 'Допы и профили'];
-    document.querySelectorAll('.sn-calc__section-title[role="button"]').forEach(title => {
+    $$('.sn-calc__section-title[role="button"]').forEach(title => {
         if (sectionsToCollapse.includes(title.textContent.trim())) {
             const content = title.parentElement.querySelector('.sn-calc__section-content');
             if (content) {
@@ -846,9 +890,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Initialize discount options
-    document.querySelectorAll('.sn-calc__discount-option').forEach(option => {
+    $$('.sn-calc__discount-option').forEach(option => {
         option.addEventListener('click', function() {
-            document.querySelectorAll('.sn-calc__discount-option').forEach(opt => opt.classList.remove('active'));
+            $$('.sn-calc__discount-option').forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
             currentDiscount = parseFloat(this.dataset.discount) || 0;
             updateDiscountStatus();
@@ -857,7 +901,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Set default discount
-    const defaultDiscount = document.querySelector('.sn-calc__discount-option[data-discount="0"]');
+    const defaultDiscount = $('.sn-calc__discount-option[data-discount="0"]');
     if (defaultDiscount) {
         defaultDiscount.classList.add('active');
     }
@@ -865,7 +909,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setDiscountVisibility(localStorage.getItem('snCalcShowDiscounts') === 'true');
     
     // Photo upload event listeners
-    document.getElementById('takePhotoBtn').addEventListener('click', function() {
+    addListener(document.getElementById('takePhotoBtn'), 'click', function() {
         if (window.cordova && window.cordova.plugins && window.cordova.plugins.camera) {
             // For Cordova apps
             navigator.camera.getPicture(onPhotoSuccess, onPhotoError, {
@@ -883,7 +927,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Затем в обработчике кнопки "Галерея":
-    document.getElementById('choosePhotoBtn').addEventListener('click', function() {
+    addListener(document.getElementById('choosePhotoBtn'), 'click', function() {
         if (window.cordova && window.cordova.plugins && window.cordova.plugins.camera) {
             // Для Cordova приложений
             navigator.camera.getPicture(onPhotoSuccess, onPhotoError, {
@@ -902,32 +946,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (miniTotals) {
         miniTotals.hidden = true;
         miniTotals.classList.remove('is-visible');
-        miniTotalsManual = false;
-        miniTotalsAutoEnabled = false;
     }
 
-    if (totalsBlock && miniTotals) {
-        const enableMiniTotalsAuto = () => {
-            miniTotalsAutoEnabled = true;
-        };
-        window.addEventListener('scroll', enableMiniTotalsAuto, { once: true, passive: true });
-        window.addEventListener('wheel', enableMiniTotalsAuto, { once: true, passive: true });
-        window.addEventListener('touchmove', enableMiniTotalsAuto, { once: true, passive: true });
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (miniTotalsManual || !miniTotalsAutoEnabled) {
-                    return;
-                }
-                setMiniTotalsVisibility(!entry.isIntersecting);
-            });
-        }, { threshold: 0.2 });
-        observer.observe(totalsBlock);
-    }
-
-    miniTotals.addEventListener('click', () => {
+    addListener(miniTotals, 'click', () => {
+        if (!totalsBlock) return;
         totalsBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
-    miniTotals.addEventListener('keydown', (event) => {
+    addListener(miniTotals, 'keydown', (event) => {
+        if (!totalsBlock) return;
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             totalsBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1137,11 +1163,11 @@ function getres_Bablo() {
     }
 
     updateMiniTotals([price_Long, price_Cassic, price_Evo, price_BAUF, price_Teqtum]);
-    count(document.querySelector('.calcPrice_Long span'), price_Long);
-    count(document.querySelector('.calcPrice_Cassic span'), price_Cassic);
-    count(document.querySelector('.calcPrice_Evo span'), price_Evo);
-    count(document.querySelector('.calcPrice_Teqtum span'), price_Teqtum);
-    count(document.querySelector('.calcPrice_BAUF span'), price_BAUF);
+    count($('.calcPrice_Long span'), price_Long);
+    count($('.calcPrice_Cassic span'), price_Cassic);
+    count($('.calcPrice_Evo span'), price_Evo);
+    count($('.calcPrice_Teqtum span'), price_Teqtum);
+    count($('.calcPrice_BAUF span'), price_BAUF);
     
 }
 
@@ -1384,9 +1410,9 @@ function sendToTelegramHandler() {
         }
     });
 
-    const proizvoditels = Array.from(document.querySelectorAll('input[name="proizvoditel"]:checked')).map(el => el.value).join(', ');
-    const material = Array.from(document.querySelectorAll('input[name="material"]:checked')).map(el => el.value).join(', ');
-    const otdelka = Array.from(document.querySelectorAll('input[name="otdelka"]:checked')).map(el => el.value).join(', ');
+    const proizvoditels = Array.from($$('input[name="proizvoditel"]:checked')).map(el => el.value).join(', ');
+    const material = Array.from($$('input[name="material"]:checked')).map(el => el.value).join(', ');
+    const otdelka = Array.from($$('input[name="otdelka"]:checked')).map(el => el.value).join(', ');
     const height = document.getElementById('calc_height').value;
     const source = document.getElementById('calc_source').value;
     const note = document.getElementById('calc_note').value.trim();
@@ -1399,11 +1425,11 @@ function sendToTelegramHandler() {
     message += `Откуда узнали: ${source}\n`;
     
     message += "\n";
-    message += `LongWai: ${document.querySelector('.calcPrice_Long span').textContent}\n`;
-    message += `MSD Classic: ${document.querySelector('.calcPrice_Cassic span').textContent}\n`;
-    message += `MSD Perfekt: ${document.querySelector('.calcPrice_Evo span').textContent}\n`;
-    message += `BAUF: ${document.querySelector('.calcPrice_BAUF span').textContent}\n`;
-    message += `Teqtum KM2: ${document.querySelector('.calcPrice_Teqtum span').textContent}\n`;
+    message += `LongWai: ${$('.calcPrice_Long span').textContent}\n`;
+    message += `MSD Classic: ${$('.calcPrice_Cassic span').textContent}\n`;
+    message += `MSD Perfekt: ${$('.calcPrice_Evo span').textContent}\n`;
+    message += `BAUF: ${$('.calcPrice_BAUF span').textContent}\n`;
+    message += `Teqtum KM2: ${$('.calcPrice_Teqtum span').textContent}\n`;
     message += `\n✅ ${proizvoditels}\n`;
     
     if (currentDiscount !== 0) {
@@ -1454,11 +1480,11 @@ function saveCurrentCalculation() {
         title: state.calc_object || 'Без названия',
         state: state,
         prices: {
-            longWai: document.querySelector('.calcPrice_Long span').textContent,
-            msdClassic: document.querySelector('.calcPrice_Cassic span').textContent,
-            msdPerfekt: document.querySelector('.calcPrice_Evo span').textContent,
-            bauf: document.querySelector('.calcPrice_BAUF span').textContent,
-            teqtum: document.querySelector('.calcPrice_Teqtum span').textContent
+            longWai: $('.calcPrice_Long span').textContent,
+            msdClassic: $('.calcPrice_Cassic span').textContent,
+            msdPerfekt: $('.calcPrice_Evo span').textContent,
+            bauf: $('.calcPrice_BAUF span').textContent,
+            teqtum: $('.calcPrice_Teqtum span').textContent
         }
     };
     
@@ -1479,7 +1505,7 @@ function saveCurrentCalculation() {
 // Функция для получения текущего состояния формы
 function getCurrentState() {
     const state = {};
-    document.querySelectorAll('input, select, textarea').forEach(el => {
+    $$('input, select, textarea').forEach(el => {
         if (!el.id) {
             return;
         }
@@ -1516,8 +1542,7 @@ function loadFromHistory(historyItem) {
     updateSendAvailability();
     
     // Закрываем панель истории
-    document.getElementById('historyPanel').classList.remove('show');
-    document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
+    closeHistoryPanel();
 }
 
 // Функция для отображения истории
@@ -1527,6 +1552,10 @@ function renderHistory() {
     const searchValue = (document.getElementById('historySearch').value || '').toLowerCase();
     const filtered = history.filter(item => item.title.toLowerCase().includes(searchValue));
     
+    if (!historyList) {
+        return;
+    }
+
     if (filtered.length === 0) {
         historyList.innerHTML = '<p>История расчетов пуста</p>';
         return;
@@ -1549,9 +1578,9 @@ function renderHistory() {
             </div>
         `;
         
-        historyItem.querySelector('[data-action="load"]').addEventListener('click', () => loadFromHistory(item));
-        historyItem.querySelector('[data-action="duplicate"]').addEventListener('click', () => duplicateHistoryItem(item));
-        historyItem.querySelector('[data-action="delete"]').addEventListener('click', () => deleteHistoryItem(item.id));
+        addListener(historyItem.querySelector('[data-action="load"]'), 'click', () => loadFromHistory(item));
+        addListener(historyItem.querySelector('[data-action="duplicate"]'), 'click', () => duplicateHistoryItem(item));
+        addListener(historyItem.querySelector('[data-action="delete"]'), 'click', () => deleteHistoryItem(item.id));
         
         historyList.appendChild(historyItem);
     });
@@ -1591,8 +1620,7 @@ function deleteHistoryItem(id) {
     
     // Если история пуста, скрываем панель
     if (history.length === 0) {
-        document.getElementById('historyPanel').classList.remove('show');
-        document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
+        closeHistoryPanel();
     }
 }
 
@@ -1604,13 +1632,12 @@ function clearAllHistory() {
     
     localStorage.removeItem(HISTORY_KEY);
     renderHistory();
-    document.getElementById('historyPanel').classList.remove('show');
-    document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
+    closeHistoryPanel();
     alert('История расчетов очищена');
 }
 
 // Обработчик для кнопки очистки всей истории
-document.getElementById('clearAllHistory').addEventListener('click', clearAllHistory);
+addListener(document.getElementById('clearAllHistory'), 'click', clearAllHistory);
 
     // Функция для очистки всех полей
     function resetAllFields() {
@@ -1620,28 +1647,34 @@ document.getElementById('clearAllHistory').addEventListener('click', clearAllHis
         }
         
         // Очищаем текстовые поля и поля ввода чисел
-        document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(input => {
+        $$('input[type="text"], input[type="number"], textarea').forEach(input => {
             input.value = input.type === 'number' ? '0' : '';
         });
         
         // Сбрасываем выпадающие списки
-        document.querySelectorAll('select').forEach(select => {
+        $$('select').forEach(select => {
             select.selectedIndex = 0;
         });
-        document.getElementById('calc_height').value = '2.5';
+        const calcHeight = document.getElementById('calc_height');
+        if (calcHeight) {
+            calcHeight.value = '2.5';
+        }
         
         // Сбрасываем чекбоксы и переключатели
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        $$('input[type="checkbox"]').forEach(checkbox => {
             checkbox.checked = false;
         });
         
         // Сбрасываем переключатель лифта
-        document.getElementById('calc_lift').checked = false;
+        const calcLift = document.getElementById('calc_lift');
+        if (calcLift) {
+            calcLift.checked = false;
+        }
         
         // Сбрасываем скидку
         currentDiscount = 0;
-        document.querySelectorAll('.sn-calc__discount-option').forEach(opt => opt.classList.remove('active'));
-        const defaultDiscount = document.querySelector('.sn-calc__discount-option[data-discount="0"]');
+        $$('.sn-calc__discount-option').forEach(opt => opt.classList.remove('active'));
+        const defaultDiscount = $('.sn-calc__discount-option[data-discount="0"]');
         if (defaultDiscount) {
             defaultDiscount.classList.add('active');
         }
@@ -1659,4 +1692,5 @@ document.getElementById('clearAllHistory').addEventListener('click', clearAllHis
     }
 
     // Обработчик для кнопки очистки
-    document.getElementById('clearBtn').addEventListener('click', resetAllFields);
+    addListener(document.getElementById('clearBtn'), 'click', resetAllFields);
+})();
