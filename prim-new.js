@@ -391,9 +391,12 @@ const catalogData = [
     state.compareIds = [];
   }
 
-  if (elOnlyDiff) {
+  function syncOnlyDiffControl(){
+    if (!elOnlyDiff || typeof elOnlyDiff.checked === "undefined") return;
     elOnlyDiff.checked = state.onlyDiff;
   }
+
+  syncOnlyDiffControl();
 
   let scrollLockCount = 0;
   function lockScroll(){
@@ -1003,7 +1006,7 @@ const catalogData = [
   elCompareClose.addEventListener("click", () => closeCompare());
   elCompareClear.addEventListener("click", () => clearCompare());
 
-  if (elOnlyDiff) {
+  if (elOnlyDiff && typeof elOnlyDiff.checked !== "undefined") {
     elOnlyDiff.addEventListener("change", () => {
       state.onlyDiff = elOnlyDiff.checked;
       localStorage.setItem(STORE.onlyDiff, state.onlyDiff ? "1" : "0");
