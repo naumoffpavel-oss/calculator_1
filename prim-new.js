@@ -822,6 +822,9 @@ const catalogData = [
 
   function openModal(itemId){
     if (!itemIndex.has(itemId)) return;
+    if (!elModal || !elModalTitle || !elModalPrice || !elModalSpecs || !elModalEmpty || !elSlideImg || !elDots || !elItemPrev || !elItemNext) {
+      return;
+    }
 
     modalState.itemId = itemId;
     modalState.visibleItemIds = getVisibleItemIds();
