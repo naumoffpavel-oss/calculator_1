@@ -251,6 +251,9 @@ const catalogData = [
   ];
 
   const elRoot = document.getElementById("snSamples");
+  if (!elRoot) {
+    console.warn("snSamples root not found");
+  } else {
 
   // ========= HELPERS =========
   const $ = (sel, root = elRoot) => (root || document).querySelector(sel);
@@ -1074,3 +1077,4 @@ const catalogData = [
   setDemo(state.demo);
   updateCompareHeaderButton();
   render();
+  }
