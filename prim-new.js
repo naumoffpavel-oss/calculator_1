@@ -1032,6 +1032,7 @@ const catalogData = [
   });
 
   document.addEventListener("keydown", (e) => {
+    if (!elModal || !elCompare) return;
     if (!elModal.hidden){
       if (e.key === "Escape") closeModal();
       if (e.key === "ArrowLeft") slideBy(-1);
