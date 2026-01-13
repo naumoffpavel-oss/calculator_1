@@ -845,15 +845,19 @@ const catalogData = [
 
     // copy only for lighting
     const isLighting = meta.sectionId === "lighting";
-    elModalCopy.hidden = !isLighting;
-    elModalCopy.textContent = "Скопировать";
+    if (elModalCopy) {
+      elModalCopy.hidden = !isLighting;
+      elModalCopy.textContent = "Скопировать";
+    }
 
     // compare toggle only for manufacturers
     const isManufacturers = meta.sectionId === "manufacturers";
-    elModalCompareToggle.hidden = !isManufacturers;
-    if (isManufacturers){
-      const on = state.compareIds.includes(item.id);
-      elModalCompareToggle.textContent = on ? "Убрать из сравнения" : "В сравнение";
+    if (elModalCompareToggle) {
+      elModalCompareToggle.hidden = !isManufacturers;
+      if (isManufacturers){
+        const on = state.compareIds.includes(item.id);
+        elModalCompareToggle.textContent = on ? "Убрать из сравнения" : "В сравнение";
+      }
     }
 
     // specs
@@ -999,7 +1003,7 @@ const catalogData = [
 
   // ========= EVENTS =========
   const on = (el, event, handler, options) => {
-    if (!el) return;
+    if (!el || typeof el.addEventListener !== "function") return;
     el.addEventListener(event, handler, options);
   };
 
@@ -1015,7 +1019,7 @@ const catalogData = [
   on(elCompareClear, "click", () => clearCompare());
 
   if (elOnlyDiff && typeof elOnlyDiff.checked !== "undefined") {
-    elOnlyDiff.addEventListener("change", () => {
+    on(elOnlyDiff, "change", () => {
       state.onlyDiff = elOnlyDiff.checked;
       localStorage.setItem(STORE.onlyDiff, state.onlyDiff ? "1" : "0");
       renderCompare();
