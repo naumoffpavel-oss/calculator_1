@@ -995,16 +995,21 @@ const catalogData = [
   }
 
   // ========= EVENTS =========
-  elSearch.addEventListener("input", () => render());
+  const on = (el, event, handler, options) => {
+    if (!el) return;
+    el.addEventListener(event, handler, options);
+  };
 
-  elDemoToggle.addEventListener("click", () => {
+  on(elSearch, "input", () => render());
+
+  on(elDemoToggle, "click", () => {
     setDemo(!state.demo);
     render();
   });
 
-  elCompareOpen.addEventListener("click", () => openCompare());
-  elCompareClose.addEventListener("click", () => closeCompare());
-  elCompareClear.addEventListener("click", () => clearCompare());
+  on(elCompareOpen, "click", () => openCompare());
+  on(elCompareClose, "click", () => closeCompare());
+  on(elCompareClear, "click", () => clearCompare());
 
   if (elOnlyDiff && typeof elOnlyDiff.checked !== "undefined") {
     elOnlyDiff.addEventListener("change", () => {
@@ -1014,11 +1019,8 @@ const catalogData = [
     });
   }
 
-  if (elModalClose){
-    elModalClose.addEventListener("click", closeModal);
-  }
-
-  elModal.addEventListener("click", (e) => {
+  on(elModalClose, "click", closeModal);
+  on(elModal, "click", (e) => {
     if (e.target === elModal) closeModal();
   });
 
@@ -1038,17 +1040,17 @@ const catalogData = [
     }
   }, true);
 
-  elSlidePrev.addEventListener("click", () => slideBy(-1));
-  elSlideNext.addEventListener("click", () => slideBy(1));
+  on(elSlidePrev, "click", () => slideBy(-1));
+  on(elSlideNext, "click", () => slideBy(1));
 
-  elSlider.addEventListener("pointerdown", onPointerDown, { passive:true });
-  elSlider.addEventListener("pointerup", onPointerUp, { passive:true });
-  elSlider.addEventListener("pointercancel", () => { swipe.active = false; }, { passive:true });
+  on(elSlider, "pointerdown", onPointerDown, { passive:true });
+  on(elSlider, "pointerup", onPointerUp, { passive:true });
+  on(elSlider, "pointercancel", () => { swipe.active = false; }, { passive:true });
 
-  elItemPrev.addEventListener("click", () => openNeighborItem(-1));
-  elItemNext.addEventListener("click", () => openNeighborItem(1));
+  on(elItemPrev, "click", () => openNeighborItem(-1));
+  on(elItemNext, "click", () => openNeighborItem(1));
 
-  elModalCopy.addEventListener("click", async () => {
+  on(elModalCopy, "click", async () => {
     if (!modalState.itemId) return;
     const meta = itemIndex.get(modalState.itemId);
     if (meta.sectionId !== "lighting") return;
@@ -1061,7 +1063,7 @@ const catalogData = [
     setTimeout(() => { elModalCopy.textContent = "Скопировать"; }, 1200);
   });
 
-  elModalCompareToggle.addEventListener("click", () => {
+  on(elModalCompareToggle, "click", () => {
     if (!modalState.itemId) return;
     const meta = itemIndex.get(modalState.itemId);
     if (meta.sectionId !== "manufacturers") return;
