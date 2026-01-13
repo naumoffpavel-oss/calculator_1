@@ -545,6 +545,10 @@ position: fixed;
     justify-content: center;
 }
 
+.sn-calc__mini-totals[hidden] {
+    display: none !important;
+}
+
 .sn-calc__mini-totals.is-visible {
     opacity: 1;
     pointer-events: auto;

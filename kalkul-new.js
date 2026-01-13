@@ -13,8 +13,6 @@ let currentDiscount = 0;
 const calcRoot = document.getElementById('calcCell_Bablo');
 const miniTotals = document.getElementById('miniTotals');
 const totalsBlock = document.getElementById('calcTotals');
-let miniTotalsManual = false;
-let miniTotalsAutoEnabled = false;
 const galleryInput = document.createElement('input');
 galleryInput.type = 'file';
 galleryInput.accept = 'image/*';
@@ -575,6 +573,52 @@ function setMiniTotalsVisibility(show) {
     miniTotals.classList.toggle('is-visible', show);
 }
 
+let lastHistoryFocusEl = null;
+
+function getHistoryFallbackFocusTarget() {
+    const openBtn = document.getElementById('showHistory');
+    if (openBtn && openBtn.offsetParent !== null) {
+        return openBtn;
+    }
+    const focusable = calcRoot
+        ? calcRoot.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+        : null;
+    if (focusable) {
+        return focusable;
+    }
+    if (calcRoot && typeof calcRoot.focus === 'function') {
+        return calcRoot;
+    }
+    return null;
+}
+
+function openHistoryPanel() {
+    const historyPanel = document.getElementById('historyPanel');
+    if (!historyPanel) return;
+    lastHistoryFocusEl = document.activeElement;
+    historyPanel.classList.add('show');
+    historyPanel.setAttribute('aria-hidden', 'false');
+    historyPanel.inert = false;
+    const closeBtn = historyPanel.querySelector('.close-history');
+    if (closeBtn) {
+        closeBtn.focus();
+    }
+}
+
+function closeHistoryPanel() {
+    const historyPanel = document.getElementById('historyPanel');
+    if (!historyPanel) return;
+    if (historyPanel.contains(document.activeElement)) {
+        const fallback = getHistoryFallbackFocusTarget() || lastHistoryFocusEl;
+        if (fallback && typeof fallback.focus === 'function') {
+            fallback.focus();
+        }
+    }
+    historyPanel.classList.remove('show');
+    historyPanel.setAttribute('aria-hidden', 'true');
+    historyPanel.inert = true;
+}
+
 function updateMiniTotals(values = []) {
     const chips = miniTotals.querySelectorAll('.sn-calc__mini-chip');
     values.forEach((value, index) => {
@@ -618,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setDiscountVisibility(localStorage.getItem('snCalcShowDiscounts') === 'true');
 
     // Обработчики для полей ввода, чтобы правильно работать с числами < 1
-    document.querySelectorAll('input[type="number"]').forEach(input => {
+    calcRoot.querySelectorAll('input[type="number"]').forEach(input => {
         input.addEventListener('focus', function() {
             if (this.value === '0') {
                 this.value = '';
@@ -677,15 +721,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('sendToTelegram').addEventListener('click', handleSendClick);
     document.getElementById('saveCalculation').addEventListener('click', saveCurrentCalculation);
+    const historyPanel = document.getElementById('historyPanel');
+    if (historyPanel) {
+        historyPanel.inert = historyPanel.getAttribute('aria-hidden') === 'true' || !historyPanel.classList.contains('show');
+    }
     document.getElementById('showHistory').addEventListener('click', () => {
         renderHistory();
-        document.getElementById('historyPanel').classList.add('show');
-        document.getElementById('historyPanel').setAttribute('aria-hidden', 'false');
+        openHistoryPanel();
     });
-    document.querySelector('.close-history').addEventListener('click', () => {
-        document.getElementById('historyPanel').classList.remove('show');
-        document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
-    });
+    document.querySelector('.close-history').addEventListener('click', closeHistoryPanel);
     document.getElementById('historySearch').addEventListener('input', renderHistory);
 
     const stickyPriceBtn = document.getElementById('stickyPriceBtn');
@@ -694,7 +738,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (stickyPriceBtn) {
         stickyPriceBtn.addEventListener('click', () => {
-            miniTotalsManual = true;
             const shouldShow = miniTotals.hidden || !miniTotals.classList.contains('is-visible');
             setMiniTotalsVisibility(shouldShow);
         });
@@ -795,7 +838,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setupNumberInputGroup(inputGroup, input);
     };
 
-    document.querySelectorAll('input[type="number"]').forEach((input) => {
+    calcRoot.querySelectorAll('input[type="number"]').forEach((input) => {
         if (input.closest('.number-input')) {
             setupNumberInputGroup(input.closest('.number-input'), input);
         } else {
@@ -902,26 +945,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (miniTotals) {
         miniTotals.hidden = true;
         miniTotals.classList.remove('is-visible');
-        miniTotalsManual = false;
-        miniTotalsAutoEnabled = false;
-    }
-
-    if (totalsBlock && miniTotals) {
-        const enableMiniTotalsAuto = () => {
-            miniTotalsAutoEnabled = true;
-        };
-        window.addEventListener('scroll', enableMiniTotalsAuto, { once: true, passive: true });
-        window.addEventListener('wheel', enableMiniTotalsAuto, { once: true, passive: true });
-        window.addEventListener('touchmove', enableMiniTotalsAuto, { once: true, passive: true });
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (miniTotalsManual || !miniTotalsAutoEnabled) {
-                    return;
-                }
-                setMiniTotalsVisibility(!entry.isIntersecting);
-            });
-        }, { threshold: 0.2 });
-        observer.observe(totalsBlock);
     }
 
     miniTotals.addEventListener('click', () => {
@@ -1516,8 +1539,7 @@ function loadFromHistory(historyItem) {
     updateSendAvailability();
     
     // Закрываем панель истории
-    document.getElementById('historyPanel').classList.remove('show');
-    document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
+    closeHistoryPanel();
 }
 
 // Функция для отображения истории
@@ -1591,8 +1613,7 @@ function deleteHistoryItem(id) {
     
     // Если история пуста, скрываем панель
     if (history.length === 0) {
-        document.getElementById('historyPanel').classList.remove('show');
-        document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
+        closeHistoryPanel();
     }
 }
 
@@ -1604,8 +1625,7 @@ function clearAllHistory() {
     
     localStorage.removeItem(HISTORY_KEY);
     renderHistory();
-    document.getElementById('historyPanel').classList.remove('show');
-    document.getElementById('historyPanel').setAttribute('aria-hidden', 'true');
+    closeHistoryPanel();
     alert('История расчетов очищена');
 }
 
