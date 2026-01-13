@@ -250,9 +250,14 @@ const catalogData = [
     }
   ];
 
+  const elRoot = document.getElementById("snSamples");
+  if (!elRoot) {
+    console.warn("snSamples root not found");
+  } else {
+
   // ========= HELPERS =========
-  const $ = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const $ = (sel, root = elRoot) => (root || document).querySelector(sel);
+  const $$ = (sel, root = elRoot) => Array.from((root || document).querySelectorAll(sel));
 
   function safeText(v){ return (v ?? "").toString(); }
 
@@ -331,7 +336,6 @@ const catalogData = [
     onlyDiff: "sn-samples-compare-onlydiff"
   };
 
-  const elRoot = $("#snSamples");
   const elTabs = $("[data-tabs]");
   const elGroups = $("[data-groups]");
   const elContent = $("[data-content]");
@@ -346,7 +350,7 @@ const catalogData = [
   const elModalPrice = $("[data-modal-price]");
   const elModalSpecs = $("[data-modal-specs]");
   const elModalEmpty = $("[data-modal-empty]");
-  const elModalClose = $("[data-modal-close]");
+  const elModalClose = elModal ? $("[data-modal-close]", elModal) : null;
   const elModalCopy = $("[data-modal-copy]");
   const elModalCompareToggle = $("[data-modal-compare-toggle]");
   const elItemPrev = $("[data-item-prev]");
@@ -387,7 +391,27 @@ const catalogData = [
     state.compareIds = [];
   }
 
-  elOnlyDiff.checked = state.onlyDiff;
+  function syncOnlyDiffControl(){
+    if (!elOnlyDiff || typeof elOnlyDiff.checked === "undefined") return;
+    elOnlyDiff.checked = state.onlyDiff;
+  }
+
+  syncOnlyDiffControl();
+
+  let scrollLockCount = 0;
+  function lockScroll(){
+    scrollLockCount += 1;
+    if (scrollLockCount === 1){
+      document.body.classList.add("sn-no-scroll");
+    }
+  }
+
+  function unlockScroll(){
+    scrollLockCount = Math.max(0, scrollLockCount - 1);
+    if (scrollLockCount === 0){
+      document.body.classList.remove("sn-no-scroll");
+    }
+  }
 
   // ========= LAZY IMG =========
   const io = new IntersectionObserver((entries) => {
@@ -675,14 +699,16 @@ const catalogData = [
   }
 
   function openCompare(){
+    if (!elCompare.hidden) return;
     renderCompare();
-    document.body.classList.add("sn-no-scroll");
+    lockScroll();
     elCompare.hidden = false;
   }
 
   function closeCompare(){
+    if (elCompare.hidden) return;
     elCompare.hidden = true;
-    document.body.classList.remove("sn-no-scroll");
+    unlockScroll();
   }
 
   function clearCompare(){
@@ -796,6 +822,9 @@ const catalogData = [
 
   function openModal(itemId){
     if (!itemIndex.has(itemId)) return;
+    if (!elModal || !elModalTitle || !elModalPrice || !elModalSpecs || !elModalEmpty || !elSlideImg || !elDots || !elItemPrev || !elItemNext) {
+      return;
+    }
 
     modalState.itemId = itemId;
     modalState.visibleItemIds = getVisibleItemIds();
@@ -816,15 +845,19 @@ const catalogData = [
 
     // copy only for lighting
     const isLighting = meta.sectionId === "lighting";
-    elModalCopy.hidden = !isLighting;
-    elModalCopy.textContent = "Скопировать";
+    if (elModalCopy) {
+      elModalCopy.hidden = !isLighting;
+      elModalCopy.textContent = "Скопировать";
+    }
 
     // compare toggle only for manufacturers
     const isManufacturers = meta.sectionId === "manufacturers";
-    elModalCompareToggle.hidden = !isManufacturers;
-    if (isManufacturers){
-      const on = state.compareIds.includes(item.id);
-      elModalCompareToggle.textContent = on ? "Убрать из сравнения" : "В сравнение";
+    if (elModalCompareToggle) {
+      elModalCompareToggle.hidden = !isManufacturers;
+      if (isManufacturers){
+        const on = state.compareIds.includes(item.id);
+        elModalCompareToggle.textContent = on ? "Убрать из сравнения" : "В сравнение";
+      }
     }
 
     // specs
@@ -867,14 +900,16 @@ const catalogData = [
 
     lastFocusEl = document.activeElement;
 
-    document.body.classList.add("sn-no-scroll");
+    lockScroll();
     elModal.hidden = false;
-    elModalClose.focus();
+    if (elModalClose){
+      elModalClose.focus();
+    }
   }
 
   function closeModal(){
     elModal.hidden = true;
-    document.body.classList.remove("sn-no-scroll");
+    unlockScroll();
     modalState.itemId = null;
     modalState.slides = [];
     modalState.slideIndex = 0;
@@ -967,30 +1002,37 @@ const catalogData = [
   }
 
   // ========= EVENTS =========
-  elSearch.addEventListener("input", () => render());
+  const on = (el, event, handler, options) => {
+    if (!el || typeof el.addEventListener !== "function") return;
+    el.addEventListener(event, handler, options);
+  };
 
-  elDemoToggle.addEventListener("click", () => {
+  on(elSearch, "input", () => render());
+
+  on(elDemoToggle, "click", () => {
     setDemo(!state.demo);
     render();
   });
 
-  elCompareOpen.addEventListener("click", () => openCompare());
-  elCompareClose.addEventListener("click", () => closeCompare());
-  elCompareClear.addEventListener("click", () => clearCompare());
+  on(elCompareOpen, "click", () => openCompare());
+  on(elCompareClose, "click", () => closeCompare());
+  on(elCompareClear, "click", () => clearCompare());
 
-  elOnlyDiff.addEventListener("change", () => {
-    state.onlyDiff = elOnlyDiff.checked;
-    localStorage.setItem(STORE.onlyDiff, state.onlyDiff ? "1" : "0");
-    renderCompare();
-  });
+  if (elOnlyDiff && typeof elOnlyDiff.checked !== "undefined") {
+    on(elOnlyDiff, "change", () => {
+      state.onlyDiff = elOnlyDiff.checked;
+      localStorage.setItem(STORE.onlyDiff, state.onlyDiff ? "1" : "0");
+      renderCompare();
+    });
+  }
 
-  elModalClose.addEventListener("click", closeModal);
-
-  elModal.addEventListener("click", (e) => {
+  on(elModalClose, "click", closeModal);
+  on(elModal, "click", (e) => {
     if (e.target === elModal) closeModal();
   });
 
   document.addEventListener("keydown", (e) => {
+    if (!elModal || !elCompare) return;
     if (!elModal.hidden){
       if (e.key === "Escape") closeModal();
       if (e.key === "ArrowLeft") slideBy(-1);
@@ -1006,17 +1048,17 @@ const catalogData = [
     }
   }, true);
 
-  elSlidePrev.addEventListener("click", () => slideBy(-1));
-  elSlideNext.addEventListener("click", () => slideBy(1));
+  on(elSlidePrev, "click", () => slideBy(-1));
+  on(elSlideNext, "click", () => slideBy(1));
 
-  elSlider.addEventListener("pointerdown", onPointerDown, { passive:true });
-  elSlider.addEventListener("pointerup", onPointerUp, { passive:true });
-  elSlider.addEventListener("pointercancel", () => { swipe.active = false; }, { passive:true });
+  on(elSlider, "pointerdown", onPointerDown, { passive:true });
+  on(elSlider, "pointerup", onPointerUp, { passive:true });
+  on(elSlider, "pointercancel", () => { swipe.active = false; }, { passive:true });
 
-  elItemPrev.addEventListener("click", () => openNeighborItem(-1));
-  elItemNext.addEventListener("click", () => openNeighborItem(1));
+  on(elItemPrev, "click", () => openNeighborItem(-1));
+  on(elItemNext, "click", () => openNeighborItem(1));
 
-  elModalCopy.addEventListener("click", async () => {
+  on(elModalCopy, "click", async () => {
     if (!modalState.itemId) return;
     const meta = itemIndex.get(modalState.itemId);
     if (meta.sectionId !== "lighting") return;
@@ -1029,7 +1071,7 @@ const catalogData = [
     setTimeout(() => { elModalCopy.textContent = "Скопировать"; }, 1200);
   });
 
-  elModalCompareToggle.addEventListener("click", () => {
+  on(elModalCompareToggle, "click", () => {
     if (!modalState.itemId) return;
     const meta = itemIndex.get(modalState.itemId);
     if (meta.sectionId !== "manufacturers") return;
@@ -1052,3 +1094,4 @@ const catalogData = [
   setDemo(state.demo);
   updateCompareHeaderButton();
   render();
+  }
