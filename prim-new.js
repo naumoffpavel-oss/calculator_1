@@ -391,7 +391,9 @@ const catalogData = [
     state.compareIds = [];
   }
 
-  elOnlyDiff.checked = state.onlyDiff;
+  if (elOnlyDiff) {
+    elOnlyDiff.checked = state.onlyDiff;
+  }
 
   let scrollLockCount = 0;
   function lockScroll(){
@@ -1001,11 +1003,13 @@ const catalogData = [
   elCompareClose.addEventListener("click", () => closeCompare());
   elCompareClear.addEventListener("click", () => clearCompare());
 
-  elOnlyDiff.addEventListener("change", () => {
-    state.onlyDiff = elOnlyDiff.checked;
-    localStorage.setItem(STORE.onlyDiff, state.onlyDiff ? "1" : "0");
-    renderCompare();
-  });
+  if (elOnlyDiff) {
+    elOnlyDiff.addEventListener("change", () => {
+      state.onlyDiff = elOnlyDiff.checked;
+      localStorage.setItem(STORE.onlyDiff, state.onlyDiff ? "1" : "0");
+      renderCompare();
+    });
+  }
 
   if (elModalClose){
     elModalClose.addEventListener("click", closeModal);
